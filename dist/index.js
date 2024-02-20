@@ -28966,34 +28966,22 @@ const github = __importStar(__nccwpck_require__(5438));
  * @returns {Promise<void>} Resolves when the action is complete.
  */
 async function run() {
-    core.info("Hello, world!");
-    core.info(`github.context.eventName: ${github.context.eventName}`);
-    switch (github.context.eventName) {
-        case "pull_request": // https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows#pull_request
-            const pullRequestEvent = github.context.payload;
-            // if (pullRequestEvent.action === "opened") {
-            core.info(`github.context.payload.action: ${pullRequestEvent.action}`);
+    if (github.context.eventName === "pull_request") {
+        // https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows#pull_request
+        const pullRequestEvent = github.context.payload;
+        if (pullRequestEvent.action === "opened") {
             onPullRequestOpened(pullRequestEvent.pull_request);
-            // }
-            break;
-        case "push": // https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows#push
-            const pushEvent = github.context.payload;
-            core.info(`github.context.payload.ref: ${pushEvent.ref}`);
-            break;
-        default:
-            break;
+        }
     }
 }
 exports.run = run;
 function onPullRequestOpened(pullRequest) {
-    core.info(`onPullRequestOpened(base:${pullRequest.base.ref}, head:${pullRequest.head.ref})`);
     if (pullRequest.base.ref === "main") {
         const isHeadFeatureBranch = pullRequest.head.ref.startsWith("feature/");
         const isHeadFixBranch = pullRequest.head.ref.startsWith("fix/");
-        // if (!isHeadFeatureBranch && !isHeadFixBranch) {
-        //   core.setFailed("Branch name does not start with `feature/` or `fix/`.");
-        // }
-        core.setFailed(`Branch name: ${pullRequest.head.ref}`);
+        if (!isHeadFeatureBranch && !isHeadFixBranch) {
+            core.setFailed("Branch name does not start with `feature/` or `fix/`.");
+        }
     }
 }
 
