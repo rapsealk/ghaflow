@@ -12,4 +12,4 @@ jobs:
   default:
     runs-on: ubuntu-latest
     steps:
-      - uses: rapsealk/ghaflow@c2cb17eee51ee840c5bb5d2eac030070ad38b2a5
+      - uses: rapsealk/ghaflow@83e61d291ef5d81d5d851c5784ee23f39cd44af8
