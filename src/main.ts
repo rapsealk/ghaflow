@@ -35,15 +35,10 @@ function onPullRequestOpened(pullRequest: PullRequest): void {
     `onPullRequestOpened(base:${pullRequest.base.ref}, head:${pullRequest.head.ref})`
   );
   if (pullRequest.base.ref === "main") {
-    const headRefBranchName = parseBranchName(pullRequest.head.ref);
-    const isFeatureBranch = headRefBranchName.startsWith("feature/");
-    const isFixBranch = headRefBranchName.startsWith("fix/");
-    if (!isFeatureBranch && !isFixBranch) {
+    const isHeadFeatureBranch = pullRequest.head.ref.startsWith("feature/");
+    const isHeadFixBranch = pullRequest.head.ref.startsWith("fix/");
+    if (!isHeadFeatureBranch && !isHeadFixBranch) {
       core.setFailed("Branch name does not start with `feature/` or `fix/`.");
     }
   }
-}
-
-function parseBranchName(ref: string): string {
-  return ref.replace(/^(refs\/heads\/)/, "");
 }
