@@ -36,15 +36,17 @@ function onPullRequestOpened(pullRequest: PullRequest): void {
   core.info(
     `onPullRequestOpened(base:${pullRequest.base.ref}, head:${pullRequest.head})`
   );
-  if (pullRequest.base.ref === "main") {
-    const headRefBranchName = pullRequest.head.ref.replace(
-      /^(refs\/heads\/)/,
-      ""
-    );
+  const baseRefBranchName = parseBranchName(pullRequest.base.ref);
+  if (baseRefBranchName === "main") {
+    const headRefBranchName = parseBranchName(pullRequest.head.ref);
     const isFeatureBranch = headRefBranchName.startsWith("feature/");
     const isFixBranch = headRefBranchName.startsWith("fix/");
     if (!isFeatureBranch && !isFixBranch) {
       core.setFailed("Branch name does not start with `feature/` or `fix/`.");
     }
   }
+}
+
+function parseBranchName(ref: string): string {
+  return ref.replace(/^(refs\/heads\/)/, "");
 }
