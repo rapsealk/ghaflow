@@ -1,0 +1,11 @@
+name: ghaflow
+description: Automates custom git branch strategy action.
+author: Jeongseok Kang
+
+branding:
+  icon: git-pull-request
+  color: green
+
+runs:
+  using: node20
+  main: dist/index.js
