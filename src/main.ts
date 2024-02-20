@@ -1,6 +1,10 @@
 import * as core from "@actions/core";
 import * as github from "@actions/github";
-import { PullRequest, PullRequestEvent } from "@octokit/webhooks-types";
+import {
+  PullRequest,
+  PullRequestEvent,
+  PushEvent,
+} from "@octokit/webhooks-types";
 
 /**
  * The main function for the action.
@@ -15,8 +19,13 @@ export async function run(): Promise<void> {
       // if (pullRequestEvent.action === "opened") {
       //   onPullRequestOpened(pullRequestEvent.pull_request);
       // }
+      core.info(JSON.stringify(github.context.payload));
       core.info(`github.context.payload.action: ${pullRequestEvent.action}`);
       onPullRequestOpened(pullRequestEvent.pull_request);
+      break;
+    case "push": // https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows#push
+      const pushEvent = github.context.payload as PushEvent;
+      core.info(`github.context.payload.ref: ${pushEvent.ref}`);
       break;
     default:
       break;

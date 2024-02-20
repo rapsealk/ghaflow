@@ -28974,8 +28974,13 @@ async function run() {
             // if (pullRequestEvent.action === "opened") {
             //   onPullRequestOpened(pullRequestEvent.pull_request);
             // }
+            core.info(JSON.stringify(github.context.payload));
             core.info(`github.context.payload.action: ${pullRequestEvent.action}`);
             onPullRequestOpened(pullRequestEvent.pull_request);
+            break;
+        case "push": // https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows#push
+            const pushEvent = github.context.payload;
+            core.info(`github.context.payload.ref: ${pushEvent.ref}`);
             break;
         default:
             break;
