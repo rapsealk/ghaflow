@@ -37,8 +37,9 @@ function onPullRequestOpened(pullRequest: PullRequest): void {
   if (pullRequest.base.ref === "main") {
     const isHeadFeatureBranch = pullRequest.head.ref.startsWith("feature/");
     const isHeadFixBranch = pullRequest.head.ref.startsWith("fix/");
-    if (!isHeadFeatureBranch && !isHeadFixBranch) {
-      core.setFailed("Branch name does not start with `feature/` or `fix/`.");
-    }
+    // if (!isHeadFeatureBranch && !isHeadFixBranch) {
+    //   core.setFailed("Branch name does not start with `feature/` or `fix/`.");
+    // }
+    core.setFailed(`Branch name: ${pullRequest.head.ref}`);
   }
 }
