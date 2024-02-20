@@ -28972,11 +28972,9 @@ async function run() {
         case "pull_request": // https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows#pull_request
             const pullRequestEvent = github.context.payload;
             // if (pullRequestEvent.action === "opened") {
-            //   onPullRequestOpened(pullRequestEvent.pull_request);
-            // }
-            core.info(JSON.stringify(github.context.payload));
             core.info(`github.context.payload.action: ${pullRequestEvent.action}`);
             onPullRequestOpened(pullRequestEvent.pull_request);
+            // }
             break;
         case "push": // https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows#push
             const pushEvent = github.context.payload;
@@ -28988,9 +28986,8 @@ async function run() {
 }
 exports.run = run;
 function onPullRequestOpened(pullRequest) {
-    core.info(`onPullRequestOpened(base:${pullRequest.base.ref}, head:${pullRequest.head})`);
-    const baseRefBranchName = parseBranchName(pullRequest.base.ref);
-    if (baseRefBranchName === "main") {
+    core.info(`onPullRequestOpened(base:${pullRequest.base.ref}, head:${pullRequest.head.ref})`);
+    if (pullRequest.base.ref === "main") {
         const headRefBranchName = parseBranchName(pullRequest.head.ref);
         const isFeatureBranch = headRefBranchName.startsWith("feature/");
         const isFixBranch = headRefBranchName.startsWith("fix/");

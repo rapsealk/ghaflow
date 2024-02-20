@@ -17,11 +17,9 @@ export async function run(): Promise<void> {
     case "pull_request": // https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows#pull_request
       const pullRequestEvent = github.context.payload as PullRequestEvent;
       // if (pullRequestEvent.action === "opened") {
-      //   onPullRequestOpened(pullRequestEvent.pull_request);
-      // }
-      core.info(JSON.stringify(github.context.payload));
       core.info(`github.context.payload.action: ${pullRequestEvent.action}`);
       onPullRequestOpened(pullRequestEvent.pull_request);
+      // }
       break;
     case "push": // https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows#push
       const pushEvent = github.context.payload as PushEvent;
@@ -34,10 +32,9 @@ export async function run(): Promise<void> {
 
 function onPullRequestOpened(pullRequest: PullRequest): void {
   core.info(
-    `onPullRequestOpened(base:${pullRequest.base.ref}, head:${pullRequest.head})`
+    `onPullRequestOpened(base:${pullRequest.base.ref}, head:${pullRequest.head.ref})`
   );
-  const baseRefBranchName = parseBranchName(pullRequest.base.ref);
-  if (baseRefBranchName === "main") {
+  if (pullRequest.base.ref === "main") {
     const headRefBranchName = parseBranchName(pullRequest.head.ref);
     const isFeatureBranch = headRefBranchName.startsWith("feature/");
     const isFixBranch = headRefBranchName.startsWith("fix/");
