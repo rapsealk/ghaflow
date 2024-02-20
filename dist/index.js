@@ -28967,12 +28967,15 @@ const github = __importStar(__nccwpck_require__(5438));
  */
 async function run() {
     core.info("Hello, world!");
+    core.info(`github.context.eventName: ${github.context.eventName}`);
     switch (github.context.eventName) {
         case "pull_request": // https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows#pull_request
             const pullRequestEvent = github.context.payload;
-            if (pullRequestEvent.action === "opened") {
-                onPullRequestOpened(pullRequestEvent.pull_request);
-            }
+            // if (pullRequestEvent.action === "opened") {
+            //   onPullRequestOpened(pullRequestEvent.pull_request);
+            // }
+            core.info(`github.context.payload.action: ${pullRequestEvent.action}`);
+            onPullRequestOpened(pullRequestEvent.pull_request);
             break;
         default:
             break;

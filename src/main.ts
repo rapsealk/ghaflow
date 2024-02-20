@@ -8,12 +8,15 @@ import { PullRequest, PullRequestEvent } from "@octokit/webhooks-types";
  */
 export async function run(): Promise<void> {
   core.info("Hello, world!");
+  core.info(`github.context.eventName: ${github.context.eventName}`);
   switch (github.context.eventName) {
     case "pull_request": // https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows#pull_request
       const pullRequestEvent = github.context.payload as PullRequestEvent;
-      if (pullRequestEvent.action === "opened") {
-        onPullRequestOpened(pullRequestEvent.pull_request);
-      }
+      // if (pullRequestEvent.action === "opened") {
+      //   onPullRequestOpened(pullRequestEvent.pull_request);
+      // }
+      core.info(`github.context.payload.action: ${pullRequestEvent.action}`);
+      onPullRequestOpened(pullRequestEvent.pull_request);
       break;
     default:
       break;
