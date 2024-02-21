@@ -15,6 +15,13 @@ export async function run(): Promise<void> {
     if (pullRequestEvent.action === "opened") {
       onPullRequestOpened(pullRequestEvent.pull_request);
     }
+    const client = github.getOctokit(GITHUB_TOKEN);
+    client.rest.issues.createComment({
+      issue_number: github.context.issue.number,
+      owner: github.context.repo.owner,
+      repo: github.context.repo.repo,
+      body: `PullRequestEvent.action: ${pullRequestEvent.action}`,
+    });
   }
 }
 
