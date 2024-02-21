@@ -13,4 +13,6 @@ jobs:
   default:
     runs-on: ubuntu-latest
     steps:
-      - uses: rapsealk/ghaflow@main
+      - uses: rapsealk/ghaflow@334c58e2a66ada3b866e998f6ece0667512a4423
+        with:
+          github-token: ${{ secrets.GH_PERSONAL_ACCESS_TOKEN }}
