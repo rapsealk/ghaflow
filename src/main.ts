@@ -2,6 +2,8 @@ import * as core from "@actions/core";
 import * as github from "@actions/github";
 import { PullRequest, PullRequestEvent } from "@octokit/webhooks-types";
 
+const GITHUB_TOKEN = core.getInput("github-token", { required: true });
+
 /**
  * The main function for the action.
  * @returns {Promise<void>} Resolves when the action is complete.
@@ -21,7 +23,15 @@ function onPullRequestOpened(pullRequest: PullRequest): void {
     const isHeadFeatureBranch = pullRequest.head.ref.startsWith("feature/");
     const isHeadFixBranch = pullRequest.head.ref.startsWith("fix/");
     if (!isHeadFeatureBranch && !isHeadFixBranch) {
-      core.setFailed("Branch name does not start with `feature/` or `fix/`.");
+      const message = "Branch name does not start with `feature/` or `fix/`.";
+      core.setFailed(message);
+      const client = github.getOctokit(GITHUB_TOKEN);
+      client.rest.issues.createComment({
+        issue_number: github.context.issue.number,
+        owner: github.context.repo.owner,
+        repo: github.context.repo.repo,
+        body: message,
+      });
     }
   }
 }
