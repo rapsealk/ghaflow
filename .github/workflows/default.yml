@@ -16,3 +16,4 @@ jobs:
       - uses: rapsealk/ghaflow@main
         with:
           github-token: ${{ secrets.GH_PERSONAL_ACCESS_TOKEN }}
+          release-branch: 1.0,2.0
