@@ -3,6 +3,14 @@ import * as github from "@actions/github";
 import { PullRequest, PullRequestEvent } from "@octokit/webhooks-types";
 
 const GITHUB_TOKEN = core.getInput("github-token", { required: true });
+const MAIN_BRANCH = core.getInput("main-branch", { required: true });
+const RELEASE_BRANCHES = core.getInput("release-branch").split(","); // comma-separated
+
+enum BranchPrefix {
+  FEATURE = "feature",
+  FIX = "fix",
+  HOTFIX = "hotfix",
+}
 
 /**
  * The main function for the action.
@@ -19,13 +27,26 @@ export async function run(): Promise<void> {
 }
 
 function onPullRequestOpened(pullRequest: PullRequest): void {
-  if (pullRequest.base.ref === "main") {
-    const isHeadFeatureBranch = pullRequest.head.ref.startsWith("feature/");
-    const isHeadFixBranch = pullRequest.head.ref.startsWith("fix/");
+  const octokit = github.getOctokit(GITHUB_TOKEN);
+  if (pullRequest.base.ref === MAIN_BRANCH) {
+    const isHeadFeatureBranch = pullRequest.head.ref.startsWith(
+      BranchPrefix.FEATURE
+    );
+    const isHeadFixBranch = pullRequest.head.ref.startsWith(BranchPrefix.FIX);
     if (!isHeadFeatureBranch && !isHeadFixBranch) {
-      const message = "Branch name does not start with `feature/` or `fix/`.";
+      const message = `Branch name does not start with \`${BranchPrefix.FEATURE}/\` or \`${BranchPrefix.FIX}/\`.`;
       core.setFailed(message);
-      const octokit = github.getOctokit(GITHUB_TOKEN);
+      octokit.rest.issues.createComment({
+        issue_number: github.context.issue.number,
+        owner: github.context.repo.owner,
+        repo: github.context.repo.repo,
+        body: message,
+      });
+    }
+  } else if (RELEASE_BRANCHES.includes(pullRequest.base.ref)) {
+    if (!pullRequest.head.ref.startsWith(BranchPrefix.HOTFIX)) {
+      const message = `Only \`${BranchPrefix.HOTFIX}/\` branches are allowed to target release branch.`;
+      core.setFailed(message);
       octokit.rest.issues.createComment({
         issue_number: github.context.issue.number,
         owner: github.context.repo.owner,

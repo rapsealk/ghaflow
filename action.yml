@@ -10,6 +10,12 @@ inputs:
   github-token:
     description: GitHub personal access token with privilege.
     required: true
+  main-branch:
+    description: Main branch.
+    default: main
+  release-branch: # 1.0[,2.0]
+    description: Release branch(es). Allow comma-separated value to support multiple branches. (e.g. "1.0,2.0")
+    required: false
 
 runs:
   using: node20
