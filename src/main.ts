@@ -20,8 +20,15 @@ export async function run(): Promise<void> {
   if (github.context.eventName === "pull_request") {
     // https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows#pull_request
     const pullRequestEvent = github.context.payload as PullRequestEvent;
-    if (pullRequestEvent.action === "opened") {
-      onPullRequestOpened(pullRequestEvent.pull_request);
+    switch (pullRequestEvent.action) {
+      case "opened":
+        onPullRequestOpened(pullRequestEvent.pull_request);
+        break;
+      case "edited":
+        onPullReqeustEdited(pullRequestEvent.pull_request);
+        break;
+      default:
+        break;
     }
   }
 }
@@ -38,12 +45,25 @@ function onPullRequestOpened(pullRequest: PullRequest): void {
       _createComment(message);
     }
   } else if (RELEASE_BRANCHES.includes(pullRequest.base.ref)) {
-    if (!pullRequest.head.ref.startsWith(BranchPrefix.HOTFIX)) {
-      const message = `Only \`${BranchPrefix.HOTFIX}/\` branches are allowed to target release branch.`;
-      core.setFailed(message);
-      _createComment(message);
-    }
+    _checkHotfixBranchToReleaseBranch(pullRequest);
   }
+}
+
+function onPullReqeustEdited(pullRequest: PullRequest): void {
+  _checkHotfixBranchToReleaseBranch(pullRequest);
+}
+
+function _checkHotfixBranchToReleaseBranch(pullRequest: PullRequest) {
+  if (!pullRequest.head.ref.startsWith(BranchPrefix.HOTFIX)) {
+    return; // Ok: not a `hotfix` branch.
+  }
+  if (!RELEASE_BRANCHES.includes(pullRequest.base.ref)) {
+    const message = `\`${BranchPrefix.HOTFIX}/*\` branches are allowed to target only \`${JSON.stringify(RELEASE_BRANCHES)}\` branch(es).`;
+    core.setFailed(message);
+    _createComment(message);
+    return;
+  }
+  // Ok: `hotfix` branch targets to `release` branch.
 }
 
 function _createComment(body: string): void {
