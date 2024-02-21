@@ -28973,13 +28973,6 @@ async function run() {
         if (pullRequestEvent.action === "opened") {
             onPullRequestOpened(pullRequestEvent.pull_request);
         }
-        const client = github.getOctokit(GITHUB_TOKEN);
-        client.rest.issues.createComment({
-            issue_number: github.context.issue.number,
-            owner: github.context.repo.owner,
-            repo: github.context.repo.repo,
-            body: `PullRequestEvent.action: ${pullRequestEvent.action}`,
-        });
     }
 }
 exports.run = run;
@@ -28990,8 +28983,8 @@ function onPullRequestOpened(pullRequest) {
         if (!isHeadFeatureBranch && !isHeadFixBranch) {
             const message = "Branch name does not start with `feature/` or `fix/`.";
             core.setFailed(message);
-            const client = github.getOctokit(GITHUB_TOKEN);
-            client.rest.issues.createComment({
+            const octokit = github.getOctokit(GITHUB_TOKEN);
+            octokit.rest.issues.createComment({
                 issue_number: github.context.issue.number,
                 owner: github.context.repo.owner,
                 repo: github.context.repo.repo,
