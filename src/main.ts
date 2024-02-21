@@ -27,7 +27,6 @@ export async function run(): Promise<void> {
 }
 
 function onPullRequestOpened(pullRequest: PullRequest): void {
-  const octokit = github.getOctokit(GITHUB_TOKEN);
   if (pullRequest.base.ref === MAIN_BRANCH) {
     const isHeadFeatureBranch = pullRequest.head.ref.startsWith(
       BranchPrefix.FEATURE
@@ -36,23 +35,23 @@ function onPullRequestOpened(pullRequest: PullRequest): void {
     if (!isHeadFeatureBranch && !isHeadFixBranch) {
       const message = `Branch name does not start with \`${BranchPrefix.FEATURE}/\` or \`${BranchPrefix.FIX}/\`.`;
       core.setFailed(message);
-      octokit.rest.issues.createComment({
-        issue_number: github.context.issue.number,
-        owner: github.context.repo.owner,
-        repo: github.context.repo.repo,
-        body: message,
-      });
+      _createComment(message);
     }
   } else if (RELEASE_BRANCHES.includes(pullRequest.base.ref)) {
     if (!pullRequest.head.ref.startsWith(BranchPrefix.HOTFIX)) {
       const message = `Only \`${BranchPrefix.HOTFIX}/\` branches are allowed to target release branch.`;
       core.setFailed(message);
-      octokit.rest.issues.createComment({
-        issue_number: github.context.issue.number,
-        owner: github.context.repo.owner,
-        repo: github.context.repo.repo,
-        body: message,
-      });
+      _createComment(message);
     }
   }
+}
+
+function _createComment(body: string): void {
+  const octokit = github.getOctokit(GITHUB_TOKEN);
+  octokit.rest.issues.createComment({
+    issue_number: github.context.issue.number,
+    owner: github.context.repo.owner,
+    repo: github.context.repo.repo,
+    body: body,
+  });
 }
