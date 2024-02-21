@@ -6,6 +6,11 @@ branding:
   icon: git-pull-request
   color: green
 
+inputs:
+  github-token:
+    description: GitHub personal access token with privilege.
+    required: true
+
 runs:
   using: node20
   main: dist/index.js
