@@ -12,20 +12,16 @@ enum BranchPrefix {
   HOTFIX = "hotfix",
 }
 
-/**
- * The main function for the action.
- * @returns {Promise<void>} Resolves when the action is complete.
- */
 export async function run(): Promise<void> {
   if (github.context.eventName === "pull_request") {
     // https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows#pull_request
     const pullRequestEvent = github.context.payload as PullRequestEvent;
     switch (pullRequestEvent.action) {
       case "opened":
-        onPullRequestOpened(pullRequestEvent.pull_request);
+        await onPullRequestOpened(pullRequestEvent.pull_request);
         break;
       case "edited":
-        onPullReqeustEdited(pullRequestEvent.pull_request);
+        await onPullReqeustEdited(pullRequestEvent.pull_request);
         break;
       default:
         break;
@@ -33,7 +29,7 @@ export async function run(): Promise<void> {
   }
 }
 
-function onPullRequestOpened(pullRequest: PullRequest): void {
+async function onPullRequestOpened(pullRequest: PullRequest): Promise<void> {
   if (pullRequest.base.ref === MAIN_BRANCH) {
     const isHeadFeatureBranch = pullRequest.head.ref.startsWith(
       BranchPrefix.FEATURE
@@ -45,30 +41,32 @@ function onPullRequestOpened(pullRequest: PullRequest): void {
       _createComment(message);
     }
   } else if (RELEASE_BRANCHES.includes(pullRequest.base.ref)) {
-    _checkHotfixBranchToReleaseBranch(pullRequest);
+    await _checkHotfixBranchToReleaseBranch(pullRequest);
   }
 }
 
-function onPullReqeustEdited(pullRequest: PullRequest): void {
-  _checkHotfixBranchToReleaseBranch(pullRequest);
+async function onPullReqeustEdited(pullRequest: PullRequest): Promise<void> {
+  await _checkHotfixBranchToReleaseBranch(pullRequest);
 }
 
-function _checkHotfixBranchToReleaseBranch(pullRequest: PullRequest) {
+async function _checkHotfixBranchToReleaseBranch(
+  pullRequest: PullRequest
+): Promise<void> {
   if (!pullRequest.head.ref.startsWith(BranchPrefix.HOTFIX)) {
     return; // Ok: not a `hotfix` branch.
   }
   if (!RELEASE_BRANCHES.includes(pullRequest.base.ref)) {
     const message = `\`${BranchPrefix.HOTFIX}/*\` branches are allowed to target only \`${JSON.stringify(RELEASE_BRANCHES)}\` branch(es).`;
     core.setFailed(message);
-    _createComment(message);
+    await _createComment(message);
     return;
   }
   // Ok: `hotfix` branch targets to `release` branch.
 }
 
-function _createComment(body: string): void {
+async function _createComment(body: string): Promise<void> {
   const octokit = github.getOctokit(GITHUB_TOKEN);
-  octokit.rest.issues.createComment({
+  await octokit.rest.issues.createComment({
     issue_number: github.context.issue.number,
     owner: github.context.repo.owner,
     repo: github.context.repo.repo,
