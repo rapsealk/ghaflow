@@ -7,9 +7,9 @@ const MAIN_BRANCH = core.getInput("main-branch", { required: true });
 const RELEASE_BRANCHES = core.getInput("release-branch").split(","); // comma-separated
 
 enum BranchPrefix {
-  FEATURE = "feature",
-  FIX = "fix",
-  HOTFIX = "hotfix",
+  FEATURE = "feature/",
+  FIX = "fix/",
+  HOTFIX = "hotfix/",
 }
 
 export async function run(): Promise<void> {
@@ -36,8 +36,8 @@ async function onPullRequestOpened(pullRequest: PullRequest): Promise<void> {
     );
     const isHeadFixBranch = pullRequest.head.ref.startsWith(BranchPrefix.FIX);
     if (!isHeadFeatureBranch && !isHeadFixBranch) {
-      const message = `Branch name does not start with \`${BranchPrefix.FEATURE}/\` or \`${BranchPrefix.FIX}/\`.`;
-      core.setFailed(message);
+      const message = `Branch name does not start with \`${BranchPrefix.FEATURE}\` or \`${BranchPrefix.FIX}\`.`;
+      core.warning(message);
       _createComment(message);
     }
   } else if (RELEASE_BRANCHES.includes(pullRequest.base.ref)) {
@@ -56,7 +56,7 @@ async function _checkHotfixBranchToReleaseBranch(
     return; // Ok: not a `hotfix` branch.
   }
   if (!RELEASE_BRANCHES.includes(pullRequest.base.ref)) {
-    const message = `\`${BranchPrefix.HOTFIX}/*\` branches are allowed to target only \`${JSON.stringify(RELEASE_BRANCHES)}\` branch(es).`;
+    const message = `\`${BranchPrefix.HOTFIX}*\` branches are allowed to target only \`${JSON.stringify(RELEASE_BRANCHES)}\` branch(es).`;
     core.setFailed(message);
     await _createComment(message);
     return;

@@ -28966,9 +28966,9 @@ const MAIN_BRANCH = core.getInput("main-branch", { required: true });
 const RELEASE_BRANCHES = core.getInput("release-branch").split(","); // comma-separated
 var BranchPrefix;
 (function (BranchPrefix) {
-    BranchPrefix["FEATURE"] = "feature";
-    BranchPrefix["FIX"] = "fix";
-    BranchPrefix["HOTFIX"] = "hotfix";
+    BranchPrefix["FEATURE"] = "feature/";
+    BranchPrefix["FIX"] = "fix/";
+    BranchPrefix["HOTFIX"] = "hotfix/";
 })(BranchPrefix || (BranchPrefix = {}));
 async function run() {
     if (github.context.eventName === "pull_request") {
@@ -28992,8 +28992,8 @@ async function onPullRequestOpened(pullRequest) {
         const isHeadFeatureBranch = pullRequest.head.ref.startsWith(BranchPrefix.FEATURE);
         const isHeadFixBranch = pullRequest.head.ref.startsWith(BranchPrefix.FIX);
         if (!isHeadFeatureBranch && !isHeadFixBranch) {
-            const message = `Branch name does not start with \`${BranchPrefix.FEATURE}/\` or \`${BranchPrefix.FIX}/\`.`;
-            core.setFailed(message);
+            const message = `Branch name does not start with \`${BranchPrefix.FEATURE}\` or \`${BranchPrefix.FIX}\`.`;
+            core.warning(message);
             _createComment(message);
         }
     }
@@ -29009,7 +29009,7 @@ async function _checkHotfixBranchToReleaseBranch(pullRequest) {
         return; // Ok: not a `hotfix` branch.
     }
     if (!RELEASE_BRANCHES.includes(pullRequest.base.ref)) {
-        const message = `\`${BranchPrefix.HOTFIX}/*\` branches are allowed to target only \`${JSON.stringify(RELEASE_BRANCHES)}\` branch(es).`;
+        const message = `\`${BranchPrefix.HOTFIX}*\` branches are allowed to target only \`${JSON.stringify(RELEASE_BRANCHES)}\` branch(es).`;
         core.setFailed(message);
         await _createComment(message);
         return;
